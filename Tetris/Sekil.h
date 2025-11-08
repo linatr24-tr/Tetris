@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <iostream>
 #include <random>
 #include <SFML/Graphics.hpp>
@@ -6,36 +6,94 @@
 class Sekil
 {
 private:
-    // Static random generator - tüm Sekil örnekleri arasýnda paylaþýlýr
+    // Static random generator - tÃ¼m Sekil Ã¶rnekleri arasÄ±nda paylaÅŸÄ±lÄ±r
     static std::random_device rd;
     static std::mt19937 gen;
     static sf::Clock Saat;
     sf::Clock TusSaat;
-
 public:
-    
     std::string Yol;
-    sf::VertexArray Tile;
     sf::Texture Dosya;
-    std::vector<std::vector<int>> matris;
+    sf::VertexArray Tile;
     float bloklukBoyut = 16.f;
+    std::vector<std::vector <int>> matris;
+    sf::Color Renk;
     float x = 250;
     float y = 100;
-    sf::Color renk;
-    float cd = 0.15f;
-    bool Tus = false;
-    bool Yerdemi = false;
-    std::unique_ptr<Sekil> digerSekil;
-
-    Sekil(const std::string& x):Yol(x), Tile(sf::PrimitiveType::Triangles),
-        Dosya(Yol)
+    std::vector<sf::VertexArray> Sekilvec;
+    std::vector<sf::VertexArray> Doluvec;
+    std::vector<std::vector<int>> Dolu;
+        bool Tus = false;
+        bool Yerdemi = false;
+        float cd = 0.15f;
+    Sekil(std::string x) :Yol(x), Dosya(Yol), Tile(sf::PrimitiveType::Triangles)
     {
-
+        
+        Dolu = {
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} };
+    
     }
-    // Matrisi VertexArray'e çevir
+    int myrand(int min, int max) {
+        std::uniform_int_distribution<int> dist(min, max);
+        return dist(gen);
+    }
+    void DortgenEkle(float px, float py, float gen, float uz) {
+        
+        sf::Vertex v1; //dortgen sol ust kÃ¶ÅŸe
+        v1.position = { px, py };
+        v1.texCoords = { 0.f,0.f };
+        v1.color = Renk;
+        Tile.append(v1);
+        sf::Vertex v2; //dortgen saÄŸ Ã¼st kÃ¶ÅŸe
+        v2.position={px+gen,py};
+        v2.texCoords = {bloklukBoyut,0.f};
+        v2.color = Renk;
+        Tile.append(v2);
+        sf::Vertex v3; //dortgen sol alt kose
+        v3.position = { px,py + uz };
+        v3.texCoords = {0.f,bloklukBoyut};
+        v3.color = Renk;
+        Tile.append(v3); //burasÄ± bir Ã¼Ã§gen
+        sf::Vertex v4;
+        v4.position = { px + gen,py };
+        v4.texCoords = { bloklukBoyut,0.f };
+        v4.color = Renk;
+        Tile.append(v4); //dortgen saÄŸ Ã¼st 2. Ã¼Ã§gen saÄŸ Ã¼st kÃ¶ÅŸe
+        sf::Vertex v5;
+        v5.position = {px+gen,py+uz};
+        v5.texCoords = { bloklukBoyut,bloklukBoyut };
+        v5.color = Renk;
+        Tile.append(v5);
+        sf::Vertex v6;
+        v6.position = { px,py + uz };
+        v6.texCoords = {0.f,bloklukBoyut};
+        v6.color = Renk;
+        Tile.append(v6);
+    }
     void VertexOlustur() {
         Tile.clear();
-
+        
+            
+        
         for (size_t i = 0; i < matris.size(); i++) {
             for (size_t j = 0; j < matris[i].size(); j++) {
                 if (matris[i][j] == 1) {
@@ -48,45 +106,7 @@ public:
                 }
             }
         }
-    }
-    void DortgenEkle(float px, float py, float genislik, float yukseklik) {
-        // Ýlk üçgen
-        sf::Vertex v1;
-        v1.position = { px, py };
-        v1.texCoords = { 0.f, 0.f };
-        v1.color = renk;
-        Tile.append(v1);
-
-        sf::Vertex v2;
-        v2.position = { px + genislik, py };
-        v2.texCoords = { bloklukBoyut, 0.f };
-        v2.color = renk;
-        Tile.append(v2);
-
-        sf::Vertex v3;
-        v3.position = { px, py + yukseklik };
-        v3.texCoords = { 0.f, bloklukBoyut };
-        v3.color = renk;
-        Tile.append(v3);
-
-        // Ýkinci üçgen
-        sf::Vertex v4;
-        v4.position = { px + genislik, py };
-        v4.texCoords = { bloklukBoyut, 0.f };
-        v4.color = renk;
-        Tile.append(v4);
-
-        sf::Vertex v5;
-        v5.position = { px + genislik, py + yukseklik };
-        v5.texCoords = { bloklukBoyut, bloklukBoyut };
-        v5.color = renk;
-        Tile.append(v5);
-
-        sf::Vertex v6;
-        v6.position = { px, py + yukseklik };
-        v6.texCoords = { 0.f, bloklukBoyut };
-        v6.color = renk;
-        Tile.append(v6);
+        Sekilvec.push_back(Tile);
     }
     void ISekilOlustur() {
         matris = {
@@ -95,7 +115,7 @@ public:
             {0, 1, 0, 0},
             {0, 1, 0, 0}
         };
-        renk = sf::Color::Cyan;
+        Renk = sf::Color::Cyan;
     }
 
     void OSekilOlustur() {
@@ -103,7 +123,7 @@ public:
             {1, 1},
             {1, 1}
         };
-        renk = sf::Color::Yellow;
+        Renk = sf::Color::Yellow;
     }
 
     void TSekilOlustur() {
@@ -112,7 +132,7 @@ public:
             {1, 1, 1},
             {0, 0, 0}
         };
-        renk = sf::Color::Magenta;
+        Renk = sf::Color::Magenta;
     }
 
     void SSekilOlustur() {
@@ -121,7 +141,7 @@ public:
             {1, 1, 0},
             {0, 0, 0}
         };
-        renk = sf::Color::Green;
+        Renk = sf::Color::Green;
     }
 
     void ZSekilOlustur() {
@@ -130,7 +150,7 @@ public:
             {0, 1, 1},
             {0, 0, 0}
         };
-        renk = sf::Color::Red;
+        Renk = sf::Color::Red;
     }
 
     void JSekilOlustur() {
@@ -139,7 +159,7 @@ public:
             {1, 1, 1},
             {0, 0, 0}
         };
-        renk = sf::Color::Blue;
+        Renk = sf::Color::Blue;
     }
 
     void LSekilOlustur() {
@@ -148,24 +168,10 @@ public:
             {1, 1, 1},
             {0, 0, 0}
         };
-        renk = sf::Color(255, 165, 0); // Turuncu
-    }
-    static int RastgeleSayi(int min, int max) {
-        std::uniform_int_distribution<int> dist(min, max);
-        return dist(gen);
-    }
-    void Ciz(sf::RenderWindow& window) {
-      
-       
-            sf::RenderStates states;
-            states.texture = &Dosya;
-            window.draw(Tile, states);
-
-         
-        
+        Renk = sf::Color(255, 165, 0); // Turuncu
     }
     void RastgeleSekilOlustur() {
-        int sekilTipi = RastgeleSayi(0, 6);
+        int sekilTipi = myrand(0, 6);
 
         switch (sekilTipi) {
         case 0: ISekilOlustur(); break;
@@ -183,19 +189,19 @@ public:
         if (Yerdemi) return;
         if (Tus) return;
         duvar.position.x += 16;
-        duvar2.position.y -=16 ;
+        duvar2.position.y -= 16;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
             if (duvar.findIntersection(Tile.getBounds())) return;
             Tus = true;
             TusSaat.restart();
             x -= 16.0f;
             VertexOlustur();
-            
+
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
             Tus = true;
             TusSaat.restart();
-           // duvar3.position.x -= 16;
+            // duvar3.position.x -= 16;
             if (duvar3.findIntersection(Tile.getBounds())) return;
             x += 16.0f;
             VertexOlustur();
@@ -211,68 +217,18 @@ public:
             Tus = true;
             TusSaat.restart();
             Dondur();
-            return; // Dönme iþleminden sonra diðer tuþlarý kontrol etme
+            return; // DÃ¶nme iÃ¾leminden sonra diÃ°er tuÃ¾larÃ½ kontrol etme
         }
-        
-    }
-   static float zaman() {
-        return Saat.restart().asSeconds();
 
     }
-    void TusCd() {
-        if (Tus) {
-            // Kaç saniye geçtiðini kontrol et
-            if (TusSaat.getElapsedTime().asSeconds() >= cd) {
-                Tus = false;         // 2 saniye geçti, devre dýþý býrak
-                TusSaat.restart();  // sayaç sýfýrlanýr
-            }
-        }
-    }
-    void gra(sf::FloatRect duvar) {
-        if (duvar.findIntersection(Tile.getBounds())) {
-            Yerdemi = true;
-            if (!digerSekil) { yeni(); }
-            return;
-        }
-        y += 16.0f*zaman() ;
-        VertexOlustur();
-    }
-    void carp(const sf::FloatRect& duvar) {
-        if (duvar.findIntersection(Tile.getBounds()))
-            x +=16;
-    }
-    void yeni() {
-        
-        if (Yerdemi && !digerSekil) { // sadece bir kere oluþtur
-            Yerdemi = false;
-            digerSekil = std::make_unique<Sekil>("kare.png");
-            digerSekil->RastgeleSekilOlustur();
-            digerSekil->VertexOlustur();
-            
-        }
-    }
-    void GuncelleZincir(sf::FloatRect duvar, sf::FloatRect duvar2, sf::FloatRect duvar3) {
-        hareket(duvar, duvar2, duvar3);
-        gra(duvar2);
 
-        if (digerSekil) {
-            digerSekil->GuncelleZincir(duvar, duvar2, duvar3);
-        }
-    }
-
-    void CizZincir(sf::RenderWindow& window) {
-        Ciz(window);
-        if (digerSekil) {
-            digerSekil->CizZincir(window);
-        }
-    }
     void Dondur() {
-        if (Yerdemi) return; // Yerdeyse dönmesin
+        if (Yerdemi) return; // Yerdeyse dÃ¶nmesin
 
         int satir = matris.size();
         int sutun = matris[0].size();
 
-        // Yeni matris oluþtur (90 derece saat yönünde döndürme için)
+        // Yeni matris oluÃ¾tur (90 derece saat yÃ¶nÃ¼nde dÃ¶ndÃ¼rme iÃ§in)
         std::vector<std::vector<int>> yeniMatris(sutun, std::vector<int>(satir));
 
         for (int i = 0; i < satir; i++) {
@@ -284,6 +240,63 @@ public:
         matris = yeniMatris;
         VertexOlustur();
     }
+        void TusCd() {
+        if (Tus) {
+            // KaÃ§ saniye geÃ§tiÃ°ini kontrol et
+            if (TusSaat.getElapsedTime().asSeconds() >= cd) {
+                Tus = false;         // 2 saniye geÃ§ti, devre dÃ½Ã¾Ã½ bÃ½rak
+                TusSaat.restart();  // sayaÃ§ sÃ½fÃ½rlanÃ½r
+            }
+        }
+    }
+        void gra(sf::FloatRect duvar) {
+            if (Yerdemi)return;
+            if (duvar.findIntersection(Tile.getBounds())) {
+                Yerdemi = true;
+                //if () {  
+                Isaretle();
+                x = 250;
+                y = 100;
+                RastgeleSekilOlustur();
+                VertexOlustur();
+                Yerdemi = false;
+                return;
+                
+              
+            }
+            y += 16.0f * zaman();
+            VertexOlustur();
+        }
+        static float zaman() {
+            return Saat.restart().asSeconds();
+
+        }
+        void Isaretle() {
+            // Tile'deki her vertexi kontrol edip Dolu matrisini gÃ¼ncelle
+            for (size_t i = 0; i < Tile.getVertexCount(); i++) {
+                sf::Vector2f pos = Tile[i].position;
+                int satir = static_cast<int>(pos.y / bloklukBoyut);
+                int sutun = static_cast<int>(pos.x / bloklukBoyut);
+
+                // TahtanÄ±n sÄ±nÄ±rlarÄ± iÃ§inde mi kontrol et
+                if (satir >= 0 && satir < Dolu.size() && sutun >= 0 && sutun < Dolu[0].size()) {
+                    Dolu[satir][sutun] = 1;
+                }
+            }
+            for (size_t i = 0; i < Dolu.size(); i++) {
+                for (size_t j = 0; j < Dolu[i].size(); j++) {
+                    if (Dolu[i][j] == 1) {
+                        DortgenEkle(
+                            x + j * bloklukBoyut,
+                            y + i * bloklukBoyut,
+                            bloklukBoyut,
+                            bloklukBoyut
+                        );
+                    }
+                }
+            }
+            Doluvec.push_back(Tile);
+          
+        }
 
 };
-

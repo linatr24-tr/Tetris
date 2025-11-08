@@ -11,6 +11,7 @@ public:
 	float resG = 32.f;
 	float resY = 32.f;
     sf::FloatRect engel;
+    
 
 	ArkaDortgen(const std::string& x) :DosyaYol(x),Dosya(DosyaYol),
 		Resim(Dosya), Tile(sf::PrimitiveType::Triangles)
