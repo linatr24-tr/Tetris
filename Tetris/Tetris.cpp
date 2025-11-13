@@ -6,64 +6,72 @@
 #include <vector>
 #include "ArkaDortgen.h"
 #include "Sekil.h"
+
 std::random_device Sekil::rd;
 std::mt19937 Sekil::gen(Sekil::rd());
 sf::Clock Sekil::Saat;
-std::vector<Sekil> SekilListesi;
 
 int main()
 {
-    
-    // Create the main window
     sf::RenderWindow window(sf::VideoMode({ 800, 600 }), "SFML window");
     window.setFramerateLimit(60);
+
     ArkaDortgen Dortgen("dortgen.png");
-    ArkaDortgen Dortgen2("dortgen.png");
-    ArkaDortgen Dortgen3("dortgen.png");
     sf::FloatRect engel = Dortgen.Ciz(200, 200, 16, 336);
-    sf::FloatRect engel2 = Dortgen2.Ciz(200, 536, 208, 16);
-    sf::FloatRect engel3 = Dortgen3.Ciz(392, 200, 16, 336);
+
     Sekil s1("kare.png");
     s1.RastgeleSekilOlustur();
     s1.VertexOlustur();
-  
-    // Start the game loop
+    Dortgen.VertexOlustur();
+    Dortgen.Hesapla();
+    Dortgen.HesaplaYan();
+
     while (window.isOpen())
     {
-        // Process events
         while (const std::optional event = window.pollEvent())
         {
-            // Close window: exit
             if (event->is<sf::Event::Closed>())
                 window.close();
         }
-        sf::RenderStates states;
-        states.texture = &Dortgen.Dosya;
-        
-        s1.hareket(engel, engel2,engel3);
-        s1.gra(engel2);
+
+        // TÜM ENGELLERE KARŞI KONTROL
+        std::vector<sf::FloatRect> tumEngeller = Dortgen.Engel;
+        tumEngeller.insert(tumEngeller.end(), Dortgen.Engel2.begin(), Dortgen.Engel2.end());
+
+        // Dolu blokları da ekle
+        for (const auto& doluBlok : s1.Doluvec) {
+            // Her dolu şeklin bloklarını ayrı ayrı ekle
+            for (size_t i = 0; i < doluBlok.getVertexCount(); i += 6) {
+                if (i + 5 < doluBlok.getVertexCount()) {
+                    sf::Vector2f pos = doluBlok[i].position;
+                    tumEngeller.push_back(sf::FloatRect({ pos.x, pos.y }, { 16, 16 }));
+                }
+            }
+        }
+
+        // GÜVENLİ hareket fonksiyonunu kullan
+        s1.hareketGuvenlı(tumEngeller, s1.Doluvec);
+
+        // Gravity - engelleri geç
+        s1.gra(tumEngeller);
+
+        s1.Sil();
+
         window.clear();
-        for (auto s : s1.Sekilvec) {
-            
-            window.draw(s);
-            s1.Sekilvec.clear();
-        }
-        for (auto s : s1.Doluvec) {
-            
-            window.draw(s);
 
+        // Çizim
+        if (!s1.Sekilvec.empty()) {
+            window.draw(s1.Sekilvec.back());
         }
-       // window.draw(s1.Tile);
-       // window.draw(s1.Sekilvec.back());
-       // window.draw(s1.DoluVer);
-         window.draw(Dortgen.Tile, states);
-        window.draw(Dortgen2.Tile, states);
-        window.draw(Dortgen3.Tile, states);
-        
 
-     
-   
-        // Update the window
+        for (const auto& s : s1.Doluvec) {
+            window.draw(s);
+        }
+
+        for (const auto& s : Dortgen.Sekilvec) {
+            window.draw(s);
+        }
+
         window.display();
     }
 }
